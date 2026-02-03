@@ -1,0 +1,78 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Custom Brand Colors - Bebek Twins Store */
+  --bs-primary: #0e2954; /* Dark Blue from Logo Ring/Text */
+  --bs-primary-rgb: 14, 41, 84;
+  --bs-secondary: #5da9e9; /* Light Blue from Bird Icon */
+  --bs-secondary-rgb: 93, 169, 233;
+  --bs-btn-primary-bg: #0e2954;
+  --bs-btn-primary-border-color: #0e2954;
+  --bs-btn-primary-hover-bg: #0a1f40;
+  --bs-btn-primary-hover-border-color: #0a1f40;
+  --bs-link-color: #0e2954;
+  --bs-link-hover-color: #0a1f40;
+  
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Override Bootstrap Button Primary manually to ensure specific styling */
+.btn-primary {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-btn-primary-hover-bg) !important;
+  border-color: var(--bs-btn-primary-hover-border-color) !important;
+}
+
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.btn-outline-primary {
+  color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+}
+
+/* Secondary Color Overrides */
+.text-secondary {
+  color: var(--bs-secondary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
+
+.btn-secondary {
+  background-color: var(--bs-secondary) !important;
+  border-color: var(--bs-secondary) !important;
+}
+
+.btn-secondary:hover {
+  background-color: #4da3e4 !important; /* Slightly darker than 5da9e9 */
+  border-color: #4da3e4 !important;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  /* Removed flex and place-items center to allow full width layout */
+}
