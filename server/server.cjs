@@ -11,6 +11,17 @@ const SECRET_KEY = "bebek-twins-secret-key-change-this-in-prod";
 app.use(cors());
 app.use(express.json());
 
+// Request Logger
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+    next();
+});
+
+// Test Route
+app.get('/api/test', (req, res) => {
+    res.json({ message: "Server is reachable" });
+});
+
 // Middleware to authenticate Token
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -133,6 +144,45 @@ app.get('/api/ternak', authenticateToken, (req, res) => {
         res.json({
             message: "success",
             data: results
+        });
+    });
+});
+
+// Create Livestock Batch (Kelompok Ternak)
+app.post('/api/ternak', authenticateToken, (req, res) => {
+    console.log("Received POST /api/ternak request");
+    console.log("Body:", req.body);
+
+    const {
+        nama_kelompok,
+        tanggal_masuk,
+        jumlah_awal,
+        jumlah_saat_ini,
+        jenis_bebek,
+        umur_minggu,
+        status
+    } = req.body;
+    // Validasi data
+    if (!nama_kelompok || !tanggal_masuk || jumlah_awal === undefined) {
+        return res.status(400).json({ error: "Nama kelompok, tanggal masuk, dan jumlah awal harus diisi" });
+    }
+
+    const insertSql = "INSERT INTO kelompok_ternak (nama_kelompok, tanggal_masuk, jumlah_awal, jumlah_saat_ini, jenis_bebek, umur_minggu, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const values = [
+        nama_kelompok,
+        tanggal_masuk,
+        Number(jumlah_awal || 0),
+        Number((jumlah_saat_ini ?? jumlah_awal) || 0),
+        jenis_bebek || null,
+        Number(umur_minggu || 0),
+        status || 'aktif'
+    ];
+    db.query(insertSql, values, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        const selectSql = "SELECT * FROM kelompok_ternak WHERE id = ?";
+        db.query(selectSql, [result.insertId], (err2, rows) => {
+            if (err2) return res.status(500).json({ error: err2.message });
+            res.status(201).json({ message: "success", data: rows[0] });
         });
     });
 });

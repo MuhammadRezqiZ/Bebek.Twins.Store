@@ -12,6 +12,14 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [form, setForm] = useState({
+    nama_kelompok: '',
+    tanggal_masuk: new Date().toISOString().slice(0, 10),
+    jumlah_awal: '',
+    jenis_bebek: '',
+    umur_minggu: ''
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -159,7 +167,10 @@ const Dashboard = () => {
                   <h5 className="mb-0 fw-bold text-dark">Data Kelompok Ternak</h5>
                   <p className="text-muted small mb-0">Monitoring status populasi bebek</p>
                 </div>
-                <button className="btn btn-primary rounded-pill px-3 d-flex align-items-center gap-2">
+                <button
+                  className="btn btn-primary rounded-pill px-3 d-flex align-items-center gap-2"
+                  onClick={() => setShowAddModal(true)}
+                >
                   <FaPlus className="fs-7" />
                   <span>Tambah Batch</span>
                 </button>
@@ -246,6 +257,115 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      {showAddModal && (
+        <div className="position-fixed top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0.4)', zIndex: 1050 }}>
+          <div className="d-flex h-100 justify-content-center align-items-center">
+            <div className="card shadow border-0 rounded-4" style={{ width: '100%', maxWidth: 560 }}>
+              <div className="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+                <h5 className="mb-0 fw-bold">Tambah Batch</h5>
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowAddModal(false)}>Tutup</button>
+              </div>
+              <div className="card-body px-4">
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    try {
+                      const token = user.accessToken;
+                      const config = { headers: { Authorization: `Bearer ${token}` } };
+                      const payload = {
+                        nama_kelompok: form.nama_kelompok,
+                        tanggal_masuk: form.tanggal_masuk,
+                        jumlah_awal: Number(form.jumlah_awal || 0),
+                        jumlah_saat_ini: Number(form.jumlah_awal || 0),
+                        jenis_bebek: form.jenis_bebek,
+                        umur_minggu: Number(form.umur_minggu || 0),
+                        status: 'aktif'
+                      };
+                      const res = await axios.post('http://localhost:5001/api/ternak', payload, config);
+                      setTernak((prev) => [res.data.data, ...prev]);
+                      setShowAddModal(false);
+                      setForm({
+                        nama_kelompok: '',
+                        tanggal_masuk: new Date().toISOString().slice(0, 10),
+                        jumlah_awal: '',
+                        jenis_bebek: '',
+                        umur_minggu: ''
+                      });
+                    } catch (err) {
+                      console.error("Error adding batch:", err);
+                      const errMsg = err.response?.data?.error || err.response?.data?.message || err.message || "Gagal menambah batch";
+                      setError(`Gagal menambah batch: ${errMsg}`);
+                      alert(`Error: ${errMsg}`); // Show alert for immediate feedback
+                    }
+                  }}
+                >
+                  <div className="mb-3">
+                    <label className="form-label">Nama Kelompok</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={form.nama_kelompok}
+                      onChange={(e) => setForm({ ...form, nama_kelompok: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Jenis Bebek</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={form.jenis_bebek}
+                      onChange={(e) => setForm({ ...form, jenis_bebek: e.target.value })}
+                      placeholder="Mojosari Petelur"
+                    />
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Jumlah Awal (ekor)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          className="form-control"
+                          value={form.jumlah_awal}
+                          onChange={(e) => setForm({ ...form, jumlah_awal: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Umur (minggu)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          className="form-control"
+                          value={form.umur_minggu}
+                          onChange={(e) => setForm({ ...form, umur_minggu: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Tanggal Masuk</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={form.tanggal_masuk}
+                      onChange={(e) => setForm({ ...form, tanggal_masuk: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="d-flex justify-content-end gap-2">
+                    <button type="button" className="btn btn-light" onClick={() => setShowAddModal(false)}>Batal</button>
+                    <button type="submit" className="btn btn-primary">Simpan</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
